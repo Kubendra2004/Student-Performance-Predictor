@@ -11,6 +11,10 @@ A full Python project that predicts student final score using learning behavior 
 - Persistent model artifacts and metrics
 - Docker and docker-compose setup
 - Pytest API test suite
+- Model versioning with metadata endpoints
+- CSV validation report endpoint with preview integration
+- Interactive what-if simulator chart and metrics chart
+- GitHub Actions CI pipeline
 
 ## Tech Stack
 
@@ -66,6 +70,15 @@ Student Performance Predictor/
 
 - `GET /metrics`
   - Returns latest MAE, RMSE, and R2 from training.
+
+- `GET /models/active`
+  - Returns metadata for active model version.
+
+- `GET /models/versions`
+  - Returns model version history with metrics.
+
+- `POST /validate/upload`
+  - Returns CSV validation report before training.
 
 ## Required CSV Columns
 
@@ -130,6 +143,9 @@ Yes, the frontend is wired to the API and working from a code perspective:
 - Calls `POST /predict`
 - Calls `GET /metrics`
 - Includes interactive score gauge, quick student profile presets, live metric cards, and activity console logging
+- Includes CSV preview table and validation badge before upload training
+- Includes metrics chart and what-if simulator line chart
+- Includes model version list and active model badge
 
 If backend is running on `http://127.0.0.1:8000`, the UI can train and predict immediately.
 
@@ -140,6 +156,14 @@ cd "/mnt/kubendra/Project Programs/Student Performance Predictor"
 source .venv/bin/activate
 pytest
 ```
+
+## CI Pipeline
+
+GitHub Actions workflow is included at:
+
+- `.github/workflows/ci.yml`
+
+It runs compile checks and pytest on push and pull requests.
 
 ## Run with Docker
 
@@ -186,6 +210,10 @@ This section tracks implementation updates as the project evolves.
 - Added pytest test suite and pytest config.
 - Expanded sample training dataset to 350 rows with realistic variation.
 - Redesigned frontend with professional visual style, motion effects, and richer interactions.
+- Added model versioning registry with active model metadata endpoints.
+- Added CSV validation report endpoint and frontend CSV preview integration.
+- Added what-if simulator chart and model metrics chart.
+- Added GitHub Actions CI workflow.
 
 ## Next Suggested Improvements
 

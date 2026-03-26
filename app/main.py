@@ -6,7 +6,15 @@ from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.model_service import FEATURE_COLUMNS, ModelService
-from app.schemas import MetricsResponse, PredictionResponse, StudentFeatures, TrainingResponse
+from app.schemas import (
+    CsvValidationResponse,
+    MetricsResponse,
+    ModelVersionMetadata,
+    ModelVersionsResponse,
+    PredictionResponse,
+    StudentFeatures,
+    TrainingResponse,
+)
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -52,6 +60,7 @@ def train_with_sample_data() -> TrainingResponse:
     return TrainingResponse(
         message="Model trained successfully with sample dataset.",
         rows_used=training_result.trained_rows,
+        version_id=training_result.version_id,
     )
 
 
@@ -75,6 +84,7 @@ async def train_with_uploaded_csv(file: UploadFile = File(...)) -> TrainingRespo
     return TrainingResponse(
         message="Model trained successfully with uploaded dataset.",
         rows_used=training_result.trained_rows,
+        version_id=training_result.version_id,
     )
 
 
@@ -96,3 +106,48 @@ def get_metrics() -> MetricsResponse:
         raise HTTPException(status_code=404, detail=str(error)) from error
 
     return MetricsResponse(**metrics)
+
+
+@app.get("/models/active", response_model=ModelVersionMetadata)
+def get_active_model() -> ModelVersionMetadata:
+    try:
+        metadata = model_service.get_active_metadata()
+    except FileNotFoundError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+
+    return ModelVersionMetadata(**metadata)
+
+
+@app.get("/models/versions", response_model=ModelVersionsResponse)
+def list_model_versions() -> ModelVersionsResponse:
+    versions = model_service.list_versions()
+    active_version_id: str | None = None
+
+    try:
+        active_metadata = model_service.get_active_metadata()
+        active_version_id = str(active_metadata.get("version_id"))
+    except FileNotFoundError:
+        active_version_id = None
+
+    return ModelVersionsResponse(
+        active_version_id=active_version_id,
+        versions=[ModelVersionMetadata(**item) for item in versions],
+    )
+
+
+@app.post("/validate/upload", response_model=CsvValidationResponse)
+async def validate_uploaded_csv(file: UploadFile = File(...)) -> CsvValidationResponse:
+    if not file.filename.lower().endswith(".csv"):
+        raise HTTPException(status_code=400, detail="Please upload a CSV file.")
+
+    try:
+        content = await file.read()
+        with NamedTemporaryFile(delete=True, suffix=".csv") as tmp_file:
+            tmp_file.write(content)
+            tmp_file.flush()
+            dataframe = pd.read_csv(tmp_file.name)
+        report = model_service.build_validation_report(dataframe)
+    except Exception as error:
+        raise HTTPException(status_code=400, detail=f"CSV validation failed: {error}") from error
+
+    return CsvValidationResponse(**report)

@@ -44,6 +44,16 @@
           <input id="csvFile" type="file" accept=".csv" />
           <button id="trainUploadBtn" type="button">Train from Uploaded CSV</button>
         </div>
+        <div class="panel-head top-gap">
+          <h3>CSV Preview</h3>
+          <span id="csvStatusBadge" class="badge neutral">No file selected</span>
+        </div>
+        <div class="table-wrap">
+          <table id="csvPreviewTable">
+            <thead></thead>
+            <tbody></tbody>
+          </table>
+        </div>
       </section>
 
       <section class="panel reveal delay-2 span-2">
@@ -117,6 +127,45 @@
             <strong id="rowsValue">--</strong>
           </article>
         </div>
+        <div class="panel-head top-gap">
+          <h3>Model Versions</h3>
+          <span id="activeVersionBadge" class="badge neutral">Active: none</span>
+        </div>
+        <ul id="versionList" class="history"></ul>
+        <div class="chart-box">
+          <canvas id="metricsChart" aria-label="Model metrics chart"></canvas>
+        </div>
+      </section>
+
+      <section class="panel reveal delay-3 span-2">
+        <div class="panel-head">
+          <h2>What-If Simulator</h2>
+          <button id="runSimulationBtn" type="button">Run Simulation</button>
+        </div>
+        <p class="soft-copy">Choose one feature to vary and visualize predicted score trend while other values stay fixed.</p>
+        <div class="sim-grid">
+          <label>Feature
+            <select id="simFeature">
+              <option value="study_hours">Study Hours</option>
+              <option value="attendance_percent">Attendance %</option>
+              <option value="previous_grade">Previous Grade</option>
+              <option value="assignments_completed">Assignments Completed</option>
+              <option value="sleep_hours">Sleep Hours</option>
+            </select>
+          </label>
+          <label>Start
+            <input id="simStart" type="number" step="0.1" value="1" />
+          </label>
+          <label>End
+            <input id="simEnd" type="number" step="0.1" value="10" />
+          </label>
+          <label>Points
+            <input id="simPoints" type="number" min="5" max="30" step="1" value="12" />
+          </label>
+        </div>
+        <div class="chart-box">
+          <canvas id="whatIfChart" aria-label="What-if simulation chart"></canvas>
+        </div>
       </section>
 
       <section class="panel reveal delay-3 span-2">
@@ -125,6 +174,7 @@
       </section>
     </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
     <script src="app.js"></script>
   </body>
 </html>

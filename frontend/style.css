@@ -119,6 +119,15 @@ h2 {
   font-size: 1.07rem;
 }
 
+h3 {
+  margin: 0;
+  font-size: 0.94rem;
+}
+
+.top-gap {
+  margin-top: 0.9rem;
+}
+
 .hint {
   font-size: 0.82rem;
   color: #496374;
@@ -142,6 +151,21 @@ input {
   padding: 0.65rem 0.75rem;
   font: inherit;
   background: #ffffff;
+}
+
+select {
+  width: 100%;
+  margin-top: 0.36rem;
+  border-radius: 10px;
+  border: 1px solid #ccd8e3;
+  padding: 0.65rem 0.75rem;
+  font: inherit;
+  background: #ffffff;
+}
+
+select:focus {
+  outline: 2px solid rgba(31, 122, 140, 0.22);
+  border-color: var(--primary);
 }
 
 input:focus {
@@ -237,6 +261,33 @@ button:disabled {
   gap: 0.55rem;
 }
 
+.table-wrap {
+  margin-top: 0.55rem;
+  border: 1px solid #d8e4ec;
+  border-radius: 12px;
+  background: #fbfdff;
+  overflow: auto;
+  max-height: 220px;
+}
+
+#csvPreviewTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+}
+
+#csvPreviewTable th,
+#csvPreviewTable td {
+  padding: 0.42rem 0.5rem;
+  border-bottom: 1px solid #e6edf3;
+  text-align: left;
+  white-space: nowrap;
+}
+
+#csvPreviewTable thead {
+  background: #eef6fb;
+}
+
 .persona-row {
   display: flex;
   flex-wrap: wrap;
@@ -311,6 +362,25 @@ button:disabled {
   display: inline-block;
   margin-top: 0.2rem;
   font-size: 1.2rem;
+}
+
+.chart-box {
+  margin-top: 0.7rem;
+  border: 1px solid #dce7ee;
+  border-radius: 14px;
+  padding: 0.5rem;
+  background: linear-gradient(180deg, #f7fbff 0%, #f9fdfc 100%);
+}
+
+.chart-box canvas {
+  width: 100%;
+  max-height: 260px;
+}
+
+.sim-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.55rem;
 }
 
 .output {
