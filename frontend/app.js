@@ -182,57 +182,82 @@ function updateSimulationInputsByFeature() {
   simEnd.step = String(range.step);
 }
 
+function buildSimulationValues(feature, start, end, points) {
+  if (feature === "assignments_completed") {
+    const low = Math.round(Math.min(start, end));
+    const high = Math.round(Math.max(start, end));
+    const values = [];
+    for (let value = low; value <= high; value += 1) {
+      values.push(value);
+      if (values.length >= points) break;
+    }
+    return start <= end ? values : values.reverse();
+  }
+
+  const values = [];
+  for (let index = 0; index < points; index += 1) {
+    const ratio = points === 1 ? 0 : index / (points - 1);
+    const current = start + (end - start) * ratio;
+    values.push(Number(current.toFixed(2)));
+  }
+  return values;
+}
+
 async function runWhatIfSimulation() {
   const feature = simFeature.value;
   const start = Number(simStart.value);
   const end = Number(simEnd.value);
   const points = Number(simPoints.value);
-  if (Number.isNaN(start) || Number.isNaN(end) || Number.isNaN(points) || points < 2) {
+  if (Number.isNaN(start) || Number.isNaN(end) || Number.isNaN(points) || points < 2 || start === end) {
     appendConsole("Simulation Validation", { error: "Invalid simulation range or point count." });
     return;
   }
 
   const basePayload = getCurrentPayloadFromForm();
-  const labels = [];
-  const values = [];
+  const simulationValues = buildSimulationValues(feature, start, end, points);
+  if (simulationValues.length < 2) {
+    appendConsole("Simulation Validation", { error: "Simulation needs at least 2 unique values." });
+    return;
+  }
 
-  for (let index = 0; index < points; index += 1) {
-    const ratio = points === 1 ? 0 : index / (points - 1);
-    const current = start + (end - start) * ratio;
-    const payload = { ...basePayload, [feature]: Number(current.toFixed(2)) };
+  const chartPoints = [];
+  const latencies = [];
+  const simulationStart = performance.now();
 
-    if (feature === "assignments_completed") {
-      payload[feature] = Math.round(payload[feature]);
-    }
+  for (const currentValue of simulationValues) {
+    const payload = { ...basePayload, [feature]: currentValue };
 
     try {
-      const { data } = await callApi("/predict", {
+      const { data, durationMs } = await callApi("/predict", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      labels.push(String(payload[feature]));
-      values.push(Number(data.predicted_score));
+      chartPoints.push({ x: Number(currentValue), y: Number(data.predicted_score) });
+      latencies.push(durationMs);
     } catch (error) {
       appendConsole("Simulation Failed", { error: error.message, payload });
       return;
     }
   }
 
+  const totalDurationMs = Number((performance.now() - simulationStart).toFixed(1));
+  const avgLatencyMs = Number((latencies.reduce((a, b) => a + b, 0) / latencies.length).toFixed(1));
+
   const ctx = document.getElementById("whatIfChart");
   if (!whatIfChart) {
     whatIfChart = new Chart(ctx, {
-      type: "line",
+      type: "scatter",
       data: {
-        labels,
         datasets: [
           {
             label: `Predicted Score vs ${feature}`,
-            data: values,
+            data: chartPoints,
             borderColor: "#1f7a8c",
             backgroundColor: "rgba(31, 122, 140, 0.18)",
             tension: 0.3,
             fill: true,
+            showLine: true,
             pointRadius: 2,
           },
         ],
@@ -241,22 +266,28 @@ async function runWhatIfSimulation() {
         responsive: true,
         plugins: { legend: { display: true } },
         scales: {
+          x: {
+            type: "linear",
+            title: { display: true, text: feature },
+          },
           y: { min: 0, max: 100 },
         },
       },
     });
   } else {
-    whatIfChart.data.labels = labels;
     whatIfChart.data.datasets[0].label = `Predicted Score vs ${feature}`;
-    whatIfChart.data.datasets[0].data = values;
+    whatIfChart.data.datasets[0].data = chartPoints;
+    whatIfChart.options.scales.x.title.text = feature;
     whatIfChart.update();
   }
 
   appendConsole("Simulation Complete", {
     feature,
-    points,
-    min_pred: Math.min(...values),
-    max_pred: Math.max(...values),
+    points: chartPoints.length,
+    min_pred: Number(Math.min(...chartPoints.map((point) => point.y)).toFixed(2)),
+    max_pred: Number(Math.max(...chartPoints.map((point) => point.y)).toFixed(2)),
+    avg_request_ms: avgLatencyMs,
+    total_simulation_ms: totalDurationMs,
   });
 }
 
