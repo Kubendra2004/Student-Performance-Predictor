@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Performance Predictor</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+
+    <header class="hero reveal">
+      <p class="kicker">Predictive Intelligence</p>
+      <h1>Student Performance Studio</h1>
+      <p class="subtitle">
+        Train your model, inspect quality metrics, and forecast student outcomes with a modern analytics interface.
+      </p>
+    </header>
+
+    <main class="dashboard">
+      <section class="panel reveal">
+        <div class="panel-head">
+          <h2>API Control Center</h2>
+          <span id="healthBadge" class="badge neutral">Unknown</span>
+        </div>
+        <label for="apiBase">API Base URL</label>
+        <div class="inline-inputs">
+          <input id="apiBase" type="text" value="http://127.0.0.1:8000" />
+          <button id="healthBtn" type="button">Check Health</button>
+        </div>
+      </section>
+
+      <section class="panel reveal delay-1">
+        <div class="panel-head">
+          <h2>Model Training Lab</h2>
+          <span class="hint">Sample dataset: 350 rows</span>
+        </div>
+        <p class="soft-copy">Train using bundled data or upload your own CSV for retraining.</p>
+        <div class="action-row">
+          <button id="trainSampleBtn" type="button">Train with Sample Dataset</button>
+        </div>
+        <div class="upload-row">
+          <input id="csvFile" type="file" accept=".csv" />
+          <button id="trainUploadBtn" type="button">Train from Uploaded CSV</button>
+        </div>
+      </section>
+
+      <section class="panel reveal delay-2 span-2">
+        <div class="panel-head">
+          <h2>Prediction Workspace</h2>
+          <div class="persona-row">
+            <button class="ghost profileBtn" data-profile="steady" type="button">Steady Learner</button>
+            <button class="ghost profileBtn" data-profile="struggling" type="button">Needs Support</button>
+            <button class="ghost profileBtn" data-profile="topper" type="button">Top Performer</button>
+          </div>
+        </div>
+
+        <form id="predictForm">
+          <div class="field-grid">
+            <label>Study Hours
+              <input name="study_hours" type="number" step="0.1" min="0" max="24" required />
+            </label>
+            <label>Attendance %
+              <input name="attendance_percent" type="number" step="0.1" min="0" max="100" required />
+            </label>
+            <label>Previous Grade
+              <input name="previous_grade" type="number" step="0.1" min="0" max="100" required />
+            </label>
+            <label>Assignments Completed
+              <input name="assignments_completed" type="number" min="0" max="100" required />
+            </label>
+            <label>Sleep Hours
+              <input name="sleep_hours" type="number" step="0.1" min="0" max="24" required />
+            </label>
+          </div>
+          <div class="action-row">
+            <button id="predictBtn" type="submit">Predict Final Score</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel reveal delay-2">
+        <h2>Prediction Signal</h2>
+        <div class="score-wrap">
+          <div class="score-track">
+            <div id="scoreBar" class="score-bar"></div>
+          </div>
+          <div class="score-meta">
+            <strong id="predictedValue">--</strong>
+            <span id="scoreLabel" class="badge neutral">Awaiting Prediction</span>
+          </div>
+        </div>
+        <ul id="recentPredictions" class="history"></ul>
+      </section>
+
+      <section class="panel reveal delay-3">
+        <div class="panel-head">
+          <h2>Model Quality</h2>
+          <button id="metricsBtn" type="button">Refresh Metrics</button>
+        </div>
+        <div class="metrics-grid">
+          <article>
+            <p>MAE</p>
+            <strong id="maeValue">--</strong>
+          </article>
+          <article>
+            <p>RMSE</p>
+            <strong id="rmseValue">--</strong>
+          </article>
+          <article>
+            <p>R²</p>
+            <strong id="r2Value">--</strong>
+          </article>
+          <article>
+            <p>Rows</p>
+            <strong id="rowsValue">--</strong>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel reveal delay-3 span-2">
+        <h2>Activity Console</h2>
+        <pre id="responseBox" class="output"></pre>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
