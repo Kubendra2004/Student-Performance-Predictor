@@ -5,13 +5,13 @@ services:
       dockerfile: Dockerfile
     container_name: spp_backend
     ports:
-      - "8000:8000"
+      - "${BACKEND_PORT:-8000}:8000"
     volumes:
       - ./models:/app/models
       - ./data:/app/data
 
   frontend:
-    image: nginx:1.27-alpine
+    image: docker.io/library/nginx:1.27-alpine
     container_name: spp_frontend
     ports:
       - "8080:80"
